@@ -33,7 +33,7 @@ cloudy_vars = ['z_inv_base','thetaL_BL','thetaL_jump','qT_3km','LCL_srf','instan
 clear_vars = ['z_inv_base','Tsrf','Tdew','precipitable_water','DZ','instant_u','instant_v','SST_instant']
 weights = np.ones(len(cloudy_vars))*25
 weights[0] = 50; weights[2] = 50; weights[8] = 50
-weights = weights/np.sum(weights)
+cloudy_weights = weights/np.sum(weights)
 
 cloudy_days=(~np.isnan(train_data_4am.n_clouds))
 train_cloudy = train_data_4am[cloudy_days][cloudy_vars].dropna()
@@ -82,7 +82,7 @@ if cloudy_test: # Cloudy days
     for dc in range(n_train_cloudy):
         for i in range(len(cloudy_vars)):
             current = (test_data_4am[cloudy_vars[i]].iloc[i_test]-cloudy[cloudy_vars[i]+'_mean'])/cloudy[cloudy_vars[i]+'_std']
-            d2[cloudy_vars[i]+'_d2'][dc] = (current - cloudy[cloudy_vars[i]].iloc[dc])**2
+            d2[cloudy_vars[i]+'_d2'][dc] = cloudy[cloudy_vars[i]+'_weight'] * (current - cloudy[cloudy_vars[i]].iloc[dc])**2
             d2['d2_total'][dc] = d2['d2_total'][dc]+d2[cloudy_vars[i]+'_d2'][dc]
         
 else: # Clear days
@@ -95,7 +95,7 @@ else: # Clear days
     for dc in range(n_train_clear):
         for i in range(len(clear_vars)):
             current = (test_data_4am[clear_vars[i]].iloc[i_test]-clear[clear_vars[i]+'_mean'])/clear[clear_vars[i]+'_std']
-            d2[clear_vars[i]+'_d2'][dc] = (current - clear[clear_vars[i]].iloc[dc])**2
+            d2[clear_vars[i]+'_d2'][dc] = clear[clear_vars[i]+'_weight'] * (current - clear[clear_vars[i]].iloc[dc])**2
             d2['d2_total'][dc] = d2['d2_total'][dc]+d2[clear_vars[i]+'_d2'][dc]
 
 print 'Current test day: ', test_data_4am.index[i_test]

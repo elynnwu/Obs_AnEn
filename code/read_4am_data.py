@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import error_calc as error_m
+import plot_methods as AnEnPlot
 import scipy.stats
 # Read 4am stats table
 #data_source='../data/DataForAnEn_20142017.csv'
@@ -108,16 +109,7 @@ else:
 #NKX = pd.read_csv('../data/NKX_GHI.csv',skiprows=1,index_col=0,parse_dates=True)
 #NKX = NKX[[NKX.columns[0],NKX.columns[5]]]
 #NKX.columns = ['GHI','CS_GHI']
-current = test_data_4am.index[i_test].strftime('%Y-%m-%d')
-plt.plot(NKX[current].index.hour+NKX[current].index.minute/60.,NKX[current].GHI)
-plt.plot(NKX[current].index.hour+NKX[current].index.minute/60.,NKX[current].CS_GHI,'--',color='k')
-obs = NKX[current].GHI.values
-AnEn = np.zeros((len(top5),len(obs)))
-for i in range(len(top5)):
-    current_top5 = top5[i].strftime('%Y-%m-%d')
-    plt.plot(NKX[current_top5].index.hour+NKX[current_top5].index.minute/60.,NKX[current_top5].GHI,color='gray')
-    AnEn[i,:] = NKX[current_top5].GHI.values
-plt.xlim([4,20])
+obs, AnEn = AnEnPlot.plot_results(test_data_4am,i_test,NKX,current,top5)
 print 'RMSE: ', error_m.calc_RMSE(np.average(AnEn,axis=0),obs)
 print 'CRMSE, BIAS: ', error_m.calc_CRMSE_BIAS(np.average(AnEn,axis=0),obs)
 print 'Rs: ', scipy.stats.spearmanr(np.average(AnEn,axis=0),obs)

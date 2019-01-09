@@ -7,8 +7,10 @@ Created on Tue Jan  8 16:42:13 2019
 """
 import numpy as np
 import matplotlib.pyplot as plt
-
+import seaborn as sns
+sns.set(style="ticks",font_scale=1.2)
 def plot_results(test_data_4am,i_test,NKX,current,top5):
+    plt.figure(figsize=(7,4))
     current = test_data_4am.index[i_test].strftime('%Y-%m-%d')
     tindex = NKX[current].index.hour+NKX[current].index.minute/60.
     plt.plot(tindex,NKX[current].GHI,marker='o',\
@@ -35,5 +37,9 @@ def plot_results(test_data_4am,i_test,NKX,current,top5):
              markeredgewidth=1, markeredgecolor='blue', label='AnEn mean')
     plt.xlim([4,20])
     plt.ylim([0,1100])
-    plt.legend(loc=0)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.2), ncol=4, columnspacing = 1)
+    plt.xticks(np.arange(4,23,2))
+    plt.xlabel('Time [hr]')
+    plt.ylabel(r'GHI [$W/m^2$]')
+    plt.tight_layout()
     return obs, AnEn

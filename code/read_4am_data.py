@@ -8,8 +8,8 @@ Created on Fri Oct 26 09:26:14 2018
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-#import matplotlib.pyplot as plt
-
+import error_calc as error_m
+import scipy.stats
 # Read 4am stats table
 #data_source='../data/DataForAnEn_20142017.csv'
 data_source='../data/DataForAnEn_20142017_v3.csv'
@@ -21,9 +21,9 @@ test_data_4am = all_data_4am.loc['2017']
 #                 Create arrays for cloudy and non cloudy days
 ###############################################################################
 cloudy_vars = ['z_inv_base','thetaL_BL','thetaL_jump','qT_3km','LCL_srf','instant_u','instant_v','SST_instant','Ocean_lcc','Zone1_lcc','Zone2_lcc','Zone3_lcc']
-clear_vars = ['Tsrf','Tdew','precipitable_water','DZ','instant_u','instant_v','SST_instant']
+clear_vars = ['z_inv_base','Tsrf','Tdew','precipitable_water','DZ','instant_u','instant_v','SST_instant']
 weights = np.ones(len(cloudy_vars))*0.04
-weights[0] = 0.3; weights[2] = 0.3; weights[8] = 0.3
+weights[0] = 0.3; weights[2] = 0.3; weights[8] = 0.5
 weights = weights/np.sum(weights)
 
 cloudy_days=(~np.isnan(train_data_4am.n_clouds))
@@ -111,8 +111,13 @@ else:
 current = test_data_4am.index[i_test].strftime('%Y-%m-%d')
 plt.plot(NKX[current].index.hour+NKX[current].index.minute/60.,NKX[current].GHI)
 plt.plot(NKX[current].index.hour+NKX[current].index.minute/60.,NKX[current].CS_GHI,'--',color='k')
-
+obs = NKX[current].GHI.values
+AnEn = np.zeros((len(top5),len(obs)))
 for i in range(len(top5)):
     current_top5 = top5[i].strftime('%Y-%m-%d')
     plt.plot(NKX[current_top5].index.hour+NKX[current_top5].index.minute/60.,NKX[current_top5].GHI,color='gray')
+    AnEn[i,:] = NKX[current_top5].GHI.values
 plt.xlim([4,20])
+print 'RMSE: ', error_m.calc_RMSE(np.average(AnEn,axis=0),obs)
+print 'CRMSE, BIAS: ', error_m.calc_CRMSE_BIAS(np.average(AnEn,axis=0),obs)
+print 'Rs: ', scipy.stats.spearmanr(np.average(AnEn,axis=0),obs)

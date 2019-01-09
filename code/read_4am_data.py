@@ -15,16 +15,24 @@ import scipy.stats
 #data_source='../data/DataForAnEn_20142017.csv'
 data_source='../data/DataForAnEn_20142017_v3.csv'
 all_data_4am = pd.read_csv(data_source,index_col=0,parse_dates=True)
-train_data_4am = all_data_4am.loc['2014':'2016']
+all_data_4am = all_data_4am[all_data_4am.index.hour==12]
+train_data_4am = all_data_4am.loc['2014':'2017']
 test_data_4am = all_data_4am.loc['2017']
 
+# Randomly pick a day in 2017
+n_test=test_data_4am.shape[0]; #number of available days
+#i_test=int(np.floor(np.random.random()*n_test))
+i_test = 87 
+# Is that day cloudy or clear?
+cloudy_test=~np.isnan(test_data_4am.n_clouds[i_test])
+train_data_4am = train_data_4am.drop(test_data_4am.index[i_test])
 ###############################################################################
 #                 Create arrays for cloudy and non cloudy days
 ###############################################################################
 cloudy_vars = ['z_inv_base','thetaL_BL','thetaL_jump','qT_3km','LCL_srf','instant_u','instant_v','SST_instant','Ocean_lcc','Zone1_lcc','Zone2_lcc','Zone3_lcc']
 clear_vars = ['z_inv_base','Tsrf','Tdew','precipitable_water','DZ','instant_u','instant_v','SST_instant']
-weights = np.ones(len(cloudy_vars))*0.04
-weights[0] = 0.3; weights[2] = 0.3; weights[8] = 0.5
+weights = np.ones(len(cloudy_vars))*25
+weights[0] = 50; weights[2] = 50; weights[8] = 50
 weights = weights/np.sum(weights)
 
 cloudy_days=(~np.isnan(train_data_4am.n_clouds))
@@ -60,12 +68,7 @@ for i in range(len(clear_vars)):
 #                      Set case and compute distance
 ###############################################################################
 
-# Randomly pick a day in 2017
-n_test=test_data_4am.shape[0]; #number of available days
-i_test=int(np.floor(np.random.random()*n_test))
 
-# Is that day cloudy or clear?
-cloudy_test=~np.isnan(test_data_4am.n_clouds[i_test])
 
 
 # Compute L2 distance

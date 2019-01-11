@@ -11,12 +11,17 @@ import seaborn as sns
 sns.set(style="ticks",font_scale=1.2)
 def plot_results(test_data_4am,i_test,NKX,current,top5):
     plt.figure(figsize=(7,5))
+    persistence = test_data_4am.index[i_test-1].strftime('%Y-%m-%d')
     current = test_data_4am.index[i_test].strftime('%Y-%m-%d')
     tindex = NKX[current].index.hour+NKX[current].index.minute/60.
     plt.plot(tindex,NKX[current].GHI,marker='o',\
              markersize=7,color='k',markerfacecolor='none', \
              markeredgewidth=1, markeredgecolor='k',label='Obs')
     plt.plot(tindex,NKX[current].CS_GHI,'--',color='k',label='Clearsky')
+    orange = (0.8352941176470589, 0.3686274509803922, 0.0)
+    plt.plot(tindex,NKX[persistence].GHI,marker='^',\
+             markersize=7,color=orange,markerfacecolor='none', \
+             markeredgewidth=1, markeredgecolor=orange, label='Persistence')
     obs = NKX[current].GHI.values
     AnEn = np.zeros((len(top5),len(obs)))
     flag = True
@@ -32,12 +37,13 @@ def plot_results(test_data_4am,i_test,NKX,current,top5):
         else:
             plt.plot(tindex,forecast_GHI,color='gray',alpha=0.8)
         AnEn[i,:] = forecast_GHI
-    plt.plot(tindex,np.average(AnEn,axis=0),color='blue', \
+    blue = (0.0, 0.4470588235294118, 0.6980392156862745)
+    plt.plot(tindex,np.average(AnEn,axis=0),color=blue, \
              marker='s',markersize=7, markerfacecolor='none', \
-             markeredgewidth=1, markeredgecolor='blue', label='AnEn mean')
+             markeredgewidth=1, markeredgecolor=blue, label='AnEn mean')
     plt.xlim([4,20])
     plt.ylim([0,1100])
-    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=4, columnspacing = 1)
+    plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3, columnspacing = 1)
     plt.xticks(np.arange(4,21,2))
     plt.xlabel('Time [hr]')
     plt.ylabel(r'GHI [$W/m^2$]')

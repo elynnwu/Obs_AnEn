@@ -5,6 +5,7 @@ Created on Tue Jan  8 16:42:13 2019
 
 @author: elynn
 """
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -48,4 +49,39 @@ def plot_results(test_data_4am,i_test,NKX,current,top5):
     plt.xlabel('Time [hr]')
     plt.ylabel(r'GHI [$W/m^2$]')
     plt.tight_layout()
-    return obs, AnEn
+    return obs, AnEn, NKX[persistence].GHI.values
+
+def plot_total_avg():
+    log = pd.read_csv('/home/elynn/Documents/github/Obs_AnEn/code/AnEn_log.csv',index_col=0,parse_dates=True)
+    for i in range(3):
+        selector = log['Cloudy test']==i
+        current = log[selector]
+        output = np.zeros((len(current),48,3))
+        for j in range(len(current)):
+            f = np.genfromtxt('/mnt/lab_45d1/database/Sc_group/AnEn/Results/zi_x2_dthetaL_x2_oceanLCC_x2_others_x1/ts/'+current.index[j].strftime('%Y%m%d')+'_GHI.csv',delimiter=',')
+            output[j,:,:] = f
+        output = np.average(output,axis=0)
+        np.savetxt('/mnt/lab_45d1/database/Sc_group/AnEn/Results/zi_x2_dthetaL_x2_oceanLCC_x2_others_x1/ts/Cloudy_test_'+str(i)+'.csv',output,delimiter=',',fmt='%s')
+        tindex = np.arange(0,24,0.5)
+        plt.figure(figsize=(7,5))
+        plt.plot(tindex,output[:,0],marker='o',\
+             markersize=7,color='k',markerfacecolor='none', \
+             markeredgewidth=1, markeredgecolor='k',label='Obs')
+        blue = (0.0, 0.4470588235294118, 0.6980392156862745)
+        plt.plot(tindex,output[:,1],color=blue, \
+             marker='s',markersize=7, markerfacecolor='none', \
+             markeredgewidth=1, markeredgecolor=blue, label='AnEn mean')
+        orange = (0.8352941176470589, 0.3686274509803922, 0.0)       
+        plt.plot(tindex,output[:,2],marker='^',\
+             markersize=7,color=orange,markerfacecolor='none', \
+             markeredgewidth=1, markeredgecolor=orange, label='Persistence')
+        plt.xlim([4,20])
+        plt.ylim([0,1100])
+        plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3, columnspacing = 1)
+        plt.xticks(np.arange(4,21,2))
+        plt.xlabel('Time [hr]')
+        plt.ylabel(r'GHI [$W/m^2$]')
+        plt.tight_layout()
+        plt.savefig('/mnt/lab_45d1/database/Sc_group/AnEn/Results/zi_x2_dthetaL_x2_oceanLCC_x2_others_x1/Cloudy_test_'+str(i)+'.png',dpi=200,bbox_inches='tight')
+        plt.close()
+    

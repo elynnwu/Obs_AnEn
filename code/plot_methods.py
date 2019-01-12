@@ -7,12 +7,13 @@ Created on Tue Jan  8 16:42:13 2019
 """
 import pandas as pd
 import numpy as np
+import datetime
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set(style="ticks",font_scale=1.2)
 def plot_results(test_data_4am,i_test,NKX,current,top5):
     plt.figure(figsize=(7,5))
-    persistence = test_data_4am.index[i_test-1].strftime('%Y-%m-%d')
+    persistence = (test_data_4am.index[i_test] - datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     current = test_data_4am.index[i_test].strftime('%Y-%m-%d')
     tindex = NKX[current].index.hour+NKX[current].index.minute/60.
     plt.plot(tindex,NKX[current].GHI,marker='o',\
@@ -42,6 +43,9 @@ def plot_results(test_data_4am,i_test,NKX,current,top5):
     plt.plot(tindex,np.average(AnEn,axis=0),color=blue, \
              marker='s',markersize=7, markerfacecolor='none', \
              markeredgewidth=1, markeredgecolor=blue, label='AnEn mean')
+    plt.plot(tindex,np.median(AnEn,axis=0),color='#3FC2A5', \
+             marker='d',markersize=7, markerfacecolor='none', \
+             markeredgewidth=1, markeredgecolor='#3FC2A5', label='AnEn median')
     plt.xlim([4,20])
     plt.ylim([0,1100])
     plt.legend(loc='upper center', bbox_to_anchor=(0.5, -0.15), ncol=3, columnspacing = 1)

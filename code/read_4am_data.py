@@ -135,13 +135,13 @@ for i_test in range(n_test):
     top5 = np.argsort(d2['d2_total'][:,0])[0:5]
     
     if cloudy_test == 2:
-        print 'The 5 most similar days: ', cloudy_wellMixed[cloudy_vars[0]].index[top5]
+#        print 'The 5 most similar days: ', cloudy_wellMixed[cloudy_vars[0]].index[top5]
         top5 = cloudy_wellMixed[cloudy_vars[0]].index[top5]
     elif cloudy_test == 1:
-        print 'The 5 most similar days: ', cloudy_decoupled[cloudy_vars[0]].index[top5]
+#        print 'The 5 most similar days: ', cloudy_decoupled[cloudy_vars[0]].index[top5]
         top5 = cloudy_decoupled[cloudy_vars[0]].index[top5]
     else:
-        print 'The 5 most similar days: ', clear[clear_vars[0]].index[top5]
+#        print 'The 5 most similar days: ', clear[clear_vars[0]].index[top5]
         top5 = clear[clear_vars[0]].index[top5]
     for i in range(len(top5)):
         log_file.write(str(top5[i])+',')
@@ -155,9 +155,10 @@ for i_test in range(n_test):
     CRMSE, BIAS = error_m.calc_CRMSE_BIAS(np.average(AnEn,axis=0),obs)
     Rs, pval = scipy.stats.spearmanr(np.average(AnEn,axis=0),obs)
     log_file.write(str(RMSE)+','+str(CRMSE)+','+str(BIAS)+','+str(Rs)+','+str(pval)+'\n')
-    output = np.zeros((48,3))
+    output = np.zeros((48,4))
     output[:,0] = obs
     output[:,1] = np.average(AnEn,axis=0)
-    output[:,2] = persistence
+    output[:,2] = np.median(AnEn,axis=0)
+    output[:,3] = persistence
     np.savetxt('/mnt/lab_45d1/database/Sc_group/AnEn/Results/zi_x2_dthetaL_x2_oceanLCC_x2_others_x1/ts/'+test_data_4am.index[i_test].strftime('%Y%m%d')+'_GHI.csv',output,delimiter=',',fmt='%s')
 log_file.close()

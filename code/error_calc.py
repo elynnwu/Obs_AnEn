@@ -26,7 +26,7 @@ def calc_RMSE(forecast,observation):
         for i in range(n):
             rmse = rmse + 1./float(n) * (forecast[i]-observation[i])**2
     else:
-        print 'Error: forecast and observation do not have the same length'
+        print('Error: forecast and observation do not have the same length')
     return np.sqrt(rmse)
 
 def calc_CRMSE_BIAS(forecast,observation):
@@ -53,6 +53,26 @@ def calc_CRMSE_BIAS(forecast,observation):
             crmse = crmse + 1./float(n) * ((forecast[i]-forecast_avg)-(observation[i]-obs_avg))**2
         bias = forecast_avg - obs_avg
     else:
-        print 'Error: forecast and observation do not have the same length'
+        print('Error: forecast and observation do not have the same length')
     return np.sqrt(crmse), bias  
 
+def post_process_stats():
+    log = pd.read_csv('AnEn_log_10days.csv',index_col=0,parse_dates=True)
+    for i in range(3):
+        output = open('/mnt/lab_48tb1/database/Sc_group/AnEn/Results/zi_x2_dthetaL_x2_oceanLCC_x2_others_x1_10analogs/stats/Cloudy_test_'+str(i)+'.csv','w')
+        output.write('Date,AnEn mean RMSE,AnEn mean CRMSE,AnEn mean Bias,AnEn median RMSE,AnEn median CRMSE,AnEn median Bias,Persistence RMSE,Persistence CRMSE,Persistence Bias\n')
+        selector = log['Cloudy test']==i
+        current = log[selector]
+        for j in range(len(current)):
+            f = np.genfromtxt('/mnt/lab_48tb1/database/Sc_group/AnEn/Results/zi_x2_dthetaL_x2_oceanLCC_x2_others_x1_10analogs/ts/'+current.index[j].strftime('%Y%m%d')+'_GHI.csv',delimiter=',')
+            AnEn_mean_crmse, AnEn_mean_bias = calc_CRMSE_BIAS(f[:,1],f[:,0])
+            AnEn_mean_rmse = calc_RMSE(f[:,1],f[:,0])
+            AnEn_med_crmse, AnEn_med_bias = calc_CRMSE_BIAS(f[:,2],f[:,0])
+            AnEn_med_rmse = calc_RMSE(f[:,2],f[:,0])
+            persis_crmse, persis_bias = calc_CRMSE_BIAS(f[:,3],f[:,0])
+            persis_rmse = calc_RMSE(f[:,3],f[:,0])
+            output.write(current.index[j].strftime('%Y%m%d')+','+str(AnEn_mean_rmse)+','+str(AnEn_mean_crmse)+','+str(AnEn_mean_bias)+','+\
+                        str(AnEn_med_rmse)+','+str(AnEn_med_crmse)+','+str(AnEn_med_bias)+','+\
+                        str(persis_rmse)+','+str(persis_crmse)+','+str(persis_bias)+'\n')
+        output.close()
+    

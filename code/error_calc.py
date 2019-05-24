@@ -6,7 +6,7 @@ This script includes functions to calculate different error metrics.
 """
 
 import numpy as np
-
+import pandas as pd
 def calc_RMSE(forecast,observation):
     '''
     Parameters
@@ -56,15 +56,16 @@ def calc_CRMSE_BIAS(forecast,observation):
         print('Error: forecast and observation do not have the same length')
     return np.sqrt(crmse), bias  
 
-def post_process_stats():
-    log = pd.read_csv('AnEn_log_10days.csv',index_col=0,parse_dates=True)
-    for i in range(3):
-        output = open('/mnt/lab_48tb1/database/Sc_group/AnEn/Results/zi_x2_dthetaL_x2_oceanLCC_x2_others_x1_10analogs/stats/Cloudy_test_'+str(i)+'.csv','w')
+def post_process_stats(path):
+    numOfAnalog = 10
+    log = pd.read_csv('/mnt/lab_48tb1/database/Sc_group/github/Obs_AnEn/code/AnEn_log_'+str(numOfAnalog)+'days.csv',index_col=0,parse_dates=True)
+    for i in range(1,3):
+        output = open(path+'stats/Cloudy_test_'+str(i)+'_kt.csv','w')
         output.write('Date,AnEn mean RMSE,AnEn mean CRMSE,AnEn mean Bias,AnEn median RMSE,AnEn median CRMSE,AnEn median Bias,Persistence RMSE,Persistence CRMSE,Persistence Bias\n')
         selector = log['Cloudy test']==i
         current = log[selector]
         for j in range(len(current)):
-            f = np.genfromtxt('/mnt/lab_48tb1/database/Sc_group/AnEn/Results/zi_x2_dthetaL_x2_oceanLCC_x2_others_x1_10analogs/ts/'+current.index[j].strftime('%Y%m%d')+'_GHI.csv',delimiter=',')
+            f = np.genfromtxt(path+'ts_kt/'+current.index[j].strftime('%Y%m%d')+'_kt.csv',delimiter=',')
             AnEn_mean_crmse, AnEn_mean_bias = calc_CRMSE_BIAS(f[:,1],f[:,0])
             AnEn_mean_rmse = calc_RMSE(f[:,1],f[:,0])
             AnEn_med_crmse, AnEn_med_bias = calc_CRMSE_BIAS(f[:,2],f[:,0])

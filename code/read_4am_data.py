@@ -23,7 +23,7 @@ all_data_4am = all_data_4am.drop(pd.Timestamp('2015-08-22 12:00:00'))
 all_data_4am = all_data_4am.drop(pd.Timestamp('2016-05-06 12:00:00'))
 
 test_data_4am = all_data_4am.loc['2014':'2017']
-numAnalogs = [10] # confirmed
+numAnalogs = [15] # confirmed
 
 '''Read NKX GHI data for saving data later'''
 NKX = pd.read_csv('../data/NKX_GHI.csv',skiprows=1,index_col=0,parse_dates=True)
@@ -31,18 +31,18 @@ NKX = NKX[[NKX.columns[0],NKX.columns[5]]]
 NKX.columns = ['GHI','CS_GHI']
 
 '''Read cloudy weights sensitivity test'''
-weights_table = pd.read_csv('../data/cloudy_weights_table.csv')
+weights_table = pd.read_csv('../data/BF_weights.csv')
 
-for wc in range(1,22):
+for wc in range(116,716):
     '''First, make folders needed to save data'''
     try: 
-        # os.makedirs('/mnt/lab_48tb1/database/Sc_group/AnEn/Results/weights_sens/Sens'+str(wc))
-        os.makedirs('/mnt/lab_48tb1/database/Sc_group/AnEn/Results/weights_sens/Sens'+str(wc)+'/ts_kt')
-        # os.makedirs('/mnt/lab_48tb1/database/Sc_group/AnEn/Results/weights_sens/Sens'+str(wc)+'/stats')
+        os.makedirs('/mnt/lab_48tb2a/database/Sc_group/AnEn/Results/weights_sens/BF'+str(wc))
+        os.makedirs('/mnt/lab_48tb2a/database/Sc_group/AnEn/Results/weights_sens/BF'+str(wc)+'/ts')
+        os.makedirs('/mnt/lab_48tb2a/database/Sc_group/AnEn/Results/weights_sens/BF'+str(wc)+'/stats')
     except OSError:
-        if not os.path.isdir('/mnt/lab_48tb1/database/Sc_group/AnEn/Results/weights_sens/Sens'+str(wc)):
+        if not os.path.isdir('/mnt/lab_48tb2a/database/Sc_group/AnEn/Results/weights_sens/BF'+str(wc)):
             raise
-    current_path = '/mnt/lab_48tb1/database/Sc_group/AnEn/Results/weights_sens/Sens'+str(wc)+'/'
+    current_path = '/mnt/lab_48tb2a/database/Sc_group/AnEn/Results/weights_sens/BF'+str(wc)+'/'
     # log_file = open('AnEn_log_'+str(numAnalogs[na])+'days.txt','w') 
     # Randomly pick a day in the testing dataset
     n_test=test_data_4am.shape[0]; #number of available days
@@ -63,12 +63,14 @@ for wc in range(1,22):
             ###############################################################################
             #                 Create arrays for cloudy-wellMixed, cloudy-decoupled, and non cloudy days
             ###############################################################################
-            cloudy_vars = ['z_inv_base','thetaL_BL','thetaL_jump','qT_3km','LCL_srf','instant_u','instant_v','SST_instant','Ocean_lcc','Zone1_lcc','Zone2_lcc','Zone3_lcc']
+            # cloudy_vars = ['z_inv_base','thetaL_BL','thetaL_jump','qT_3km','LCL_srf','instant_u','instant_v','SST_instant','Ocean_lcc','Zone1_lcc','Zone2_lcc','Zone3_lcc']
+            cloudy_vars = ['z_inv_base','thetaL_jump','instant_u','thetaL_BL','qT_3km','LCL_srf','instant_v','SST_instant','Ocean_lcc','Zone1_lcc']
+
             clear_vars = ['z_inv_base','Tsrf','Tdew','precipitable_water','DZ','instant_u','instant_v','SST_instant']
             # weights = np.ones(len(cloudy_vars))*25
             # weights[0] = 50; weights[2] = 50; weights[8] = 50
             # weights = weights/np.sum(weights)
-            weights = weights_table['Sens'+str(wc)].values
+            weights = weights_table['BF'+str(wc)].values
             
             '''Criteria for each class'''
             cloudy_decoupled_days = (train_data_4am['decoupled_dtv']==1)
@@ -156,7 +158,7 @@ for wc in range(1,22):
         #    print 'Cloudy day: ', cloudy_test
             # log_file.write(str(test_data_4am.index[i_test])+','+str(cloudy_test)+',')
             non_nan = ~np.isnan(d2['d2_total'])
-            top5 = np.argsort(d2['d2_total'][:,0])[0:10]
+            top5 = np.argsort(d2['d2_total'][:,0])[0:15]
             
             if cloudy_test == 2:
         #        print 'The 5 most similar days: ', cloudy_wellMixed[cloudy_vars[0]].index[top5]
@@ -182,6 +184,6 @@ for wc in range(1,22):
             output[:,1] = np.average(AnEn,axis=0)
             output[:,2] = np.median(AnEn,axis=0)
             output[:,3] = persistence
-            np.savetxt(current_path+'ts_kt/'+test_data_4am.index[i_test].strftime('%Y%m%d')+'_kt.csv',output,delimiter=',',fmt='%s')
+            np.savetxt(current_path+'ts/'+test_data_4am.index[i_test].strftime('%Y%m%d')+'_GHI.csv',output,delimiter=',',fmt='%s')
     # log_file.close()
     error_m.post_process_stats(current_path)

@@ -58,14 +58,14 @@ def calc_CRMSE_BIAS(forecast,observation):
 
 def post_process_stats(path):
     numOfAnalog = 10
-    log = pd.read_csv('/mnt/lab_48tb1/database/Sc_group/github/Obs_AnEn/code/AnEn_log_'+str(numOfAnalog)+'days.csv',index_col=0,parse_dates=True)
+    log = pd.read_csv('/mnt/lab_48tb2a/database/Sc_group/github/Obs_AnEn/code/AnEn_log_'+str(numOfAnalog)+'days.csv',index_col=0,parse_dates=True)
     for i in range(1,3):
-        output = open(path+'stats/Cloudy_test_'+str(i)+'_kt.csv','w')
+        output = open(path+'stats/Cloudy_test_'+str(i)+'_GHI.csv','w')
         output.write('Date,AnEn mean RMSE,AnEn mean CRMSE,AnEn mean Bias,AnEn median RMSE,AnEn median CRMSE,AnEn median Bias,Persistence RMSE,Persistence CRMSE,Persistence Bias\n')
         selector = log['Cloudy test']==i
         current = log[selector]
         for j in range(len(current)):
-            f = np.genfromtxt(path+'ts_kt/'+current.index[j].strftime('%Y%m%d')+'_kt.csv',delimiter=',')
+            f = np.genfromtxt(path+'ts/'+current.index[j].strftime('%Y%m%d')+'_GHI.csv',delimiter=',')
             AnEn_mean_crmse, AnEn_mean_bias = calc_CRMSE_BIAS(f[:,1],f[:,0])
             AnEn_mean_rmse = calc_RMSE(f[:,1],f[:,0])
             AnEn_med_crmse, AnEn_med_bias = calc_CRMSE_BIAS(f[:,2],f[:,0])

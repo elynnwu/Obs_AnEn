@@ -24,17 +24,17 @@ def plot_results(test_data_4am,i_test,NKX,current,top5):
     # plt.plot(tindex,NKX[persistence].GHI,marker='^',\
     #          markersize=7,color=orange,markerfacecolor='none', \
     #          markeredgewidth=1, markeredgecolor=orange, label='Persistence')
-    # obs = NKX[current].GHI.values
-    obs = np.nan_to_num(NKX[current].GHI.values.astype(float)/NKX[current].CS_GHI.values.astype(float))
+    obs = NKX[current].GHI.values
+    # obs = np.nan_to_num(NKX[current].GHI.values.astype(float)/NKX[current].CS_GHI.values.astype(float))
     AnEn = np.zeros((len(top5),len(obs)))
     flag = True
     for i in range(len(top5)):
         current_top5 = top5[i].strftime('%Y-%m-%d')
         tindex = NKX[current_top5].index.hour+NKX[current_top5].index.minute/60.
         kt = NKX[current_top5].GHI/NKX[current_top5].CS_GHI
-        # forecast_GHI = kt.values*NKX[current].CS_GHI.values
-        # forecast_GHI = np.nan_to_num(forecast_GHI)
-        forecast_GHI = np.nan_to_num(kt)
+        forecast_GHI = kt.values*NKX[current].CS_GHI.values
+        forecast_GHI = np.nan_to_num(forecast_GHI)
+        # forecast_GHI = np.nan_to_num(kt)
         # if flag:
         #     plt.plot(tindex,forecast_GHI,color='gray',alpha=0.8, label='AnEn individual')
         #     flag = False
@@ -55,7 +55,7 @@ def plot_results(test_data_4am,i_test,NKX,current,top5):
     # plt.xlabel('Time [hr]')
     # plt.ylabel(r'GHI [$W/m^2$]')
     # plt.tight_layout()
-    persistence = np.nan_to_num(NKX[persistence].GHI.values.astype(float)/NKX[persistence].CS_GHI.values.astype(float))
+    persistence = NKX[persistence].GHI.values # np.nan_to_num(NKX[persistence].GHI.values.astype(float)/NKX[persistence].CS_GHI.values.astype(float))
     return obs, AnEn, persistence
 
 def plot_total_avg():
